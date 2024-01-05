@@ -12,7 +12,7 @@ void OnVehicleUpdate(uint id, uint64 rdx) {
     SetWheelsFlying(rdx);
 }
 void SetWheelsFlying(uint64 visStatePtr) {
-    trace('wheels flying: ' + Text::FormatPointer(visStatePtr));
+    // trace('wheels flying: ' + Text::FormatPointer(visStatePtr));
     Dev::Write(visStatePtr + O_VEHICLESTATE_FL_FLYING, uint(0x0));
     Dev::Write(visStatePtr + O_VEHICLESTATE_FR_FLYING, uint(0x0));
     Dev::Write(visStatePtr + O_VEHICLESTATE_RL_FLYING, uint(0x0));
