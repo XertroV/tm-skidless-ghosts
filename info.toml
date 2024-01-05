@@ -7,4 +7,3 @@ version  = "0.1.0"
 [script]
 #__DEFINES__
 dependencies = ["VehicleState"]
-optional_dependencies = ["DossardPlus"]
