@@ -13,10 +13,12 @@ void OnVehicleUpdate(uint id, uint64 rdx) {
 }
 void SetWheelsFlying(uint64 visStatePtr) {
     // trace('wheels flying: ' + Text::FormatPointer(visStatePtr));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_FL_FLYING, uint(0x0));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_FR_FLYING, uint(0x0));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_RL_FLYING, uint(0x0));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_RR_FLYING, uint(0x0));
+    // setting these to zero makes the camera think the vehicle is flying, 6 and 7 work
+    // todo: read them first and only overwrite if ==4
+    Dev::Write(visStatePtr + O_VEHICLESTATE_FL_FLYING, uint(0x7));
+    Dev::Write(visStatePtr + O_VEHICLESTATE_FR_FLYING, uint(0x7));
+    Dev::Write(visStatePtr + O_VEHICLESTATE_RL_FLYING, uint(0x7));
+    Dev::Write(visStatePtr + O_VEHICLESTATE_RR_FLYING, uint(0x7));
 }
 
 #elif MP4
