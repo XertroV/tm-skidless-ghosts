@@ -1,24 +1,98 @@
+const string PluginName = Meta::ExecutingPlugin().Name;
+const string MenuTitle = "\\$dd5" + Icons::Magic + "\\$z " + PluginName;
+
 void Main(){
-    VehicleState::RegisterOnVehicleStateUpdateCallback(OnVehicleUpdate);
+    startnew(LoadFonts);
+    // VehicleState::RegisterOnVehicleStateUpdateCallback(OnVehicleUpdate);
+    // check permissions and version
+    CheckAndSetGameVersionSafe();
+    while (!GameVersionSafe) sleep(500);
+    HookVehicleVisUpdate.Apply();
+}
+
+UI::Font@ f_MonoSpace = null;
+
+void LoadFonts() {
+	@f_MonoSpace = UI::LoadFont("DroidSansMono.ttf");
+}
+
+
+void RenderMenu() {
+    if (!GameVersionSafe) {
+        UI::BeginDisabled();
+        UI::MenuItem(MenuTitle, Icons::ExclamationTriangle);
+        UI::EndDisabled();
+        return;
+    }
+    if (UI::BeginMenu(MenuTitle)) {
+        if (UI::MenuItem("Enable Skidless Ghosts", "", S_EnableSkidlessGhosts)) {
+            S_EnableSkidlessGhosts = !S_EnableSkidlessGhosts;
+        }
+        if (UI::MenuItem("Skidless Ghosts only while driving?", "", S_SkidlessGhostsOnlyWhileDriving)) {
+            S_SkidlessGhostsOnlyWhileDriving = !S_SkidlessGhostsOnlyWhileDriving;
+        }
+        if (UI::MenuItem("Clear Skids on Restart", "", S_ClearSkidsOnRestart)) {
+            S_ClearSkidsOnRestart = !S_ClearSkidsOnRestart;
+        }
+        if (UI::MenuItem("Clear Skids on Respawn", "", S_ClearSkidsOnRespawn)) {
+            S_ClearSkidsOnRespawn = !S_ClearSkidsOnRespawn;
+        }
+        if (UI::MenuItem("Hotkey: Toggle Skidless Ghosts", GetHotkey_SkidlessGhosts(), false)) {
+            EditHotkeys_OpenWindow();
+        }
+        if (UI::MenuItem("Hotkey: Clear Skids", GetHotkey_ClearSkids(), false)) {
+            EditHotkeys_OpenWindow();
+        }
+
+        UI::Separator();
+
+        if (UI::MenuItem("Plugin Features Enabled", "", S_EnablePluginFeatures)) {
+            S_EnablePluginFeatures = !S_EnablePluginFeatures;
+        }
+        AddSimpleTooltip("Disable plugin features without disabling dependent plugins.");
+
+        UI::Separator();
+
+        if (UI::MenuItem("VehicleState Update Hook Enabled", "", HookVehicleVisUpdate.IsApplied())) {
+            HookVehicleVisUpdate.Toggle();
+        }
+        AddSimpleTooltip("This is REQUIRED for dependent plugins to work. Disabling this will only disable skidless ghosts and dependent plugins.");
+
+
+        // HookVehicleVisUpdate.Toggle();
+        // HookVehicleVisUpdate.IsApplied();
+        UI::EndMenu();
+    }
+}
+
+
+void Render() {
+    RenderEditHotkeysWindow();
 }
 
 
 #if TMNEXT
 // rcx = CSceneVehicleVis, rdx = CSceneVehicleVisState
-void OnVehicleUpdate(uint id, uint64 rdx) {
-    // auto id = Dev::ReadUInt32(rdx);
-    // trace('rdx: ' + Text::FormatPointer(rdx) + ", id: " + Text::Format("%08x", id));
+void OnVehicleUpdate(uint id, uint64 ptr) {
+    // auto id = Dev::ReadUInt32(ptr);
+    // trace('ptr: ' + Text::FormatPointer(ptr) + ", id: " + Text::Format("%08x", id));
     if (id & 0xFF000000 != 0x04000000) return;
-    SetWheelsFlying(rdx);
+    SetWheelsFlying(ptr);
 }
 void SetWheelsFlying(uint64 visStatePtr) {
     // trace('wheels flying: ' + Text::FormatPointer(visStatePtr));
     // setting these to zero makes the camera think the vehicle is flying, 6 and 7 work
     // todo: read them first and only overwrite if ==4
-    Dev::Write(visStatePtr + O_VEHICLESTATE_FL_FLYING, uint(0x7));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_FR_FLYING, uint(0x7));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_RL_FLYING, uint(0x7));
-    Dev::Write(visStatePtr + O_VEHICLESTATE_RR_FLYING, uint(0x7));
+    Dev_WriteChecked(visStatePtr + O_VEHICLESTATE_FL_FLYING, uint(0x7), 4);
+    Dev_WriteChecked(visStatePtr + O_VEHICLESTATE_FR_FLYING, uint(0x7), 4);
+    Dev_WriteChecked(visStatePtr + O_VEHICLESTATE_RL_FLYING, uint(0x7), 4);
+    Dev_WriteChecked(visStatePtr + O_VEHICLESTATE_RR_FLYING, uint(0x7), 4);
+}
+
+void Dev_WriteChecked(uint64 addr, uint value, uint expected) {
+    if (addr == 0) return;
+    if (expected != Dev::ReadUInt32(addr)) return;
+    Dev::Write(addr, value);
 }
 
 #elif MP4
@@ -65,5 +139,7 @@ void SetWheelsFlying(uint64 visStatePtr) {
 void OnDestroyed() { _Unload(); }
 void OnDisabled() { _Unload(); }
 void _Unload() {
-    VehicleState::DeregisterVehicleStateUpdateCallbacks();
+    // VehicleState::DeregisterVehicleStateUpdateCallbacks();
+    CheckUnhookAllRegisteredHooks();
+    FreeAllAllocated();
 }

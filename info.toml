@@ -1,9 +1,13 @@
 [meta]
-name     = "Skidless Ghosts"
+name     = "Skids Magician"
 author   = "XertroV"
 category = "Race"
 version  = "0.1.0"
+siteid   = 482
 
 [script]
 #__DEFINES__
 dependencies = ["VehicleState"]
+exports = ["Export_Code.as"]
+shared_exports = ["Export_Shared.as"]
+module = "SkidsMagician"

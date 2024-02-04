@@ -1,4 +1,15 @@
-# 
+# Skids Magician
+
+todo:
+- [ ] respawn watcher
+- [ ] restart watcher
+- [ ] reset skids
+- [ ] menu features
+- [ ] guard functions with settings
+- [ ] manager finder
+- [ ] hotkeys
+- [ ] settings
+
 
 License: Public Domain
 
