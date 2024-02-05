@@ -9,6 +9,7 @@ void Main(){
     while (!GameVersionSafe) sleep(500);
     HookVehicleVisUpdate.Apply();
     startnew(WatchForRespawnsAndRestartsCoro);
+    startnew(DemoCoro);
 }
 
 UI::Font@ f_MonoSpace = null;
