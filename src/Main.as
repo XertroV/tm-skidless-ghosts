@@ -1,5 +1,6 @@
 const string PluginName = Meta::ExecutingPlugin().Name;
-const string MenuTitle = "\\$dd5" + Icons::Magic + "\\$z " + PluginName;
+const string MenuIconColor = "\\$fd5";
+const string MenuTitle = MenuIconColor + Icons::Magic + "\\$z " + PluginName;
 
 void Main(){
     startnew(LoadFonts);
@@ -26,7 +27,7 @@ void RenderMenu() {
         UI::EndDisabled();
         return;
     }
-    if (UI::BeginMenu(MenuTitle)) {
+    if (UI::BeginMenu(GenerateAnimatedMenuTitle() + "###skids-m-plgs-mnu")) {
         S_EnableSkidlessGhosts = UI::Checkbox("Enable Skidless Ghosts", S_EnableSkidlessGhosts);
         S_SkidlessGhostsOnlyWhileDriving = UI::Checkbox("Skidless Ghosts only while driving?", S_SkidlessGhostsOnlyWhileDriving);
         S_ClearSkidsOnRestart = UI::Checkbox("Clear Skids on Restart", S_ClearSkidsOnRestart);
@@ -42,6 +43,13 @@ void RenderMenu() {
         }
 
         UI::Separator();
+        if (UI::Button("Clear Skids Now")) {
+            ClearSkids();
+        }
+
+        UI::Separator();
+        UI::TextDisabled("By XertroV");
+        UI::Separator();
 
         S_EnablePluginFeatures = UI::Checkbox("Plugin Features Enabled", S_EnablePluginFeatures);
         AddSimpleTooltip("Disable plugin features without disabling dependent plugins.");
@@ -56,12 +64,37 @@ void RenderMenu() {
             Notify("VehicleState Update Hook " + (newApplied ? "Enabled" : "Disabled"));
         }
 
-        UI::Separator();
-        UI::TextDisabled("By XertroV");
 
         UI::EndMenu();
     }
 }
+
+const string SPACES_20 = "                    ";
+
+string GenerateAnimatedMenuTitle() {
+    auto baseTitle = MenuTitle + " " + MenuIconColor;
+    auto t = Time::Now % 15000;
+
+    // waiting
+    if (t < 7000 || t > 10000) return baseTitle + Icons::Magic;
+    // blinking
+    if (t < 8500) {
+        // back and forth motion over 1500 ms
+        auto waveState = (t - 7000) / 250 % 2;
+        if (waveState == 0) return baseTitle + Icons::Magic;
+        else return baseTitle + " " + Icons::Magic;
+    }
+    if (t < 9750) {
+        t = (t - 8500) / 125;
+        baseTitle += Icons::Magic + SPACES_20.SubStr(0, t) + "\\$0ff" + Icons::Bolt;
+        return baseTitle;
+    }
+    baseTitle += Icons::Magic + SPACES_20.SubStr(0, 10) + "\\$ff0" + (t < 9875 ? Icons::StarO : Icons::Star);
+    return baseTitle;
+}
+
+
+
 
 
 void Render() {
