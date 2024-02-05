@@ -26,42 +26,35 @@ void RenderMenu() {
         return;
     }
     if (UI::BeginMenu(MenuTitle)) {
-        if (UI::MenuItem("Enable Skidless Ghosts", "", S_EnableSkidlessGhosts)) {
-            S_EnableSkidlessGhosts = !S_EnableSkidlessGhosts;
-        }
-        if (UI::MenuItem("Skidless Ghosts only while driving?", "", S_SkidlessGhostsOnlyWhileDriving)) {
-            S_SkidlessGhostsOnlyWhileDriving = !S_SkidlessGhostsOnlyWhileDriving;
-        }
-        if (UI::MenuItem("Clear Skids on Restart", "", S_ClearSkidsOnRestart)) {
-            S_ClearSkidsOnRestart = !S_ClearSkidsOnRestart;
-        }
-        if (UI::MenuItem("Clear Skids on Respawn", "", S_ClearSkidsOnRespawn)) {
-            S_ClearSkidsOnRespawn = !S_ClearSkidsOnRespawn;
-        }
+        S_EnableSkidlessGhosts = UI::Checkbox("Enable Skidless Ghosts", S_EnableSkidlessGhosts);
+        S_SkidlessGhostsOnlyWhileDriving = UI::Checkbox("Skidless Ghosts only while driving?", S_SkidlessGhostsOnlyWhileDriving);
+        S_ClearSkidsOnRestart = UI::Checkbox("Clear Skids on Restart", S_ClearSkidsOnRestart);
+        S_ClearSkidsOnRespawn = UI::Checkbox("Clear Skids on Respawn", S_ClearSkidsOnRespawn);
+        UI::Separator();
+        // UI::AlignTextToFramePadding();
         if (UI::MenuItem("Hotkey: Toggle Skidless Ghosts", GetHotkey_SkidlessGhosts(), false)) {
             EditHotkeys_OpenWindow();
         }
+        // UI::AlignTextToFramePadding();
         if (UI::MenuItem("Hotkey: Clear Skids", GetHotkey_ClearSkids(), false)) {
             EditHotkeys_OpenWindow();
         }
 
         UI::Separator();
 
-        if (UI::MenuItem("Plugin Features Enabled", "", S_EnablePluginFeatures)) {
-            S_EnablePluginFeatures = !S_EnablePluginFeatures;
-        }
+        S_EnablePluginFeatures = UI::Checkbox("Plugin Features Enabled", S_EnablePluginFeatures);
         AddSimpleTooltip("Disable plugin features without disabling dependent plugins.");
 
         UI::Separator();
 
-        if (UI::MenuItem("VehicleState Update Hook Enabled", "", HookVehicleVisUpdate.IsApplied())) {
-            HookVehicleVisUpdate.Toggle();
-        }
+        bool isApplied = HookVehicleVisUpdate.IsApplied();
+        auto newApplied = UI::Checkbox("VehicleState Update Hook Enabled", isApplied);
         AddSimpleTooltip("This is REQUIRED for dependent plugins to work. Disabling this will only disable skidless ghosts and dependent plugins.");
+        if (newApplied != isApplied) {
+            HookVehicleVisUpdate.Toggle();
+            Notify("VehicleState Update Hook " + (newApplied ? "Enabled" : "Disabled"));
+        }
 
-
-        // HookVehicleVisUpdate.Toggle();
-        // HookVehicleVisUpdate.IsApplied();
         UI::EndMenu();
     }
 }

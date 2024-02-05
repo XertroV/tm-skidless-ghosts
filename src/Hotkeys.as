@@ -9,7 +9,7 @@ VirtualKey S_ToggleSkidlessGhostsHotkey = VirtualKey::F8;
 bool S_EnableToggleSkidlessGhostsHotkey = false;
 
 [Setting hidden]
-VirtualKey S_ClearSkidsHotkey = VirtualKey::C;
+VirtualKey S_ClearSkidsHotkey = VirtualKey::V;
 
 [Setting hidden]
 bool S_EnableClearSkidsHotkey = false;
@@ -59,7 +59,7 @@ void S_HotkeysTab() {
     }
     UI::Separator();
     if (rebindInProgress) {
-        UI::Text("Press a key to bind, or Esc to cancel.");
+        UI::Text("\\$4e4Press a key to bind, or Esc to cancel.");
     } else {
         UI::Text("\\$888Enable hotkeys and rebind them.");
         UI::Text("\\$888Status messages will appear here.");
@@ -181,9 +181,9 @@ UI::InputBlocking OnPressClearSkidsHotkey() {
 }
 
 string GetHotkey_SkidlessGhosts() {
-    return !S_EnableToggleSkidlessGhostsHotkey ? "<disabled>" : tostring(S_ToggleSkidlessGhostsHotkey);
+    return !S_EnableToggleSkidlessGhostsHotkey ? "\\$s\\$e99<disabled>" : "\\$s\\$9e9" + tostring(S_ToggleSkidlessGhostsHotkey);
 }
 
 string GetHotkey_ClearSkids() {
-    return !S_EnableClearSkidsHotkey ? "<disabled>" : tostring(S_ClearSkidsHotkey);
+    return !S_EnableClearSkidsHotkey ? "\\$s\\$e99<disabled>" : "\\$s\\$9e9" + tostring(S_ClearSkidsHotkey);
 }

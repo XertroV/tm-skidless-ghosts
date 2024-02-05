@@ -2,7 +2,7 @@ void ClearSkids() {
     // NSceneParticleVis_SMgr
     auto mgr = FindManager(0x300b4000);
     if (mgr is null) return;
-    auto particleVisMgr = Dev_NSceneParticleVis_SMgr(mgr.ptr);
+    auto particleVisMgr = D_NSceneParticleVis_SMgr(mgr.ptr);
     auto emitters = particleVisMgr.ActiveEmitters;
     ResetSeenEmitters();
     auto nbEmitters = emitters.Length;
@@ -10,10 +10,17 @@ void ClearSkids() {
         auto emitter = emitters.GetActiveEmitter(i);
         if (!IsSkidEmitter(emitter) /*&& SeenSkidEmitter(emitter)*/) continue;
         auto points = emitter.PointsStruct.SkidsPoints;
+        // optimize this to avoid 10ms exec time -> improves to about 2-3ms
         auto nbPoints = points.Length;
+        if (nbPoints == 0) continue;
+        auto firstPoint = points.GetPoint(0);
+        auto pointsStartPointer = firstPoint.Ptr;
+        auto pointSize = firstPoint.ElSize;
+        auto invisOffset = firstPoint.InvisibleOffset;
         for (uint j = 0; j < nbPoints; j++) {
-            auto point = points.GetPoint(j);
-            point.Invisible = true;
+            Dev::Write(pointsStartPointer + j * pointSize + invisOffset, uint(1));
+            // auto point = points.GetPoint(j);
+            // point.Invisible = true;
         }
     }
 }
@@ -31,10 +38,12 @@ bool IsSkidEmitter(NSceneParticleVis_ActiveEmitter@ emitter) {
         DoesEmitterHaveSkidMat(emitter);
 }
 
+const uint16 O_CPlugParticleEmitterSubModel_Render = GetOffset('CPlugParticleEmitterSubModel', "Render");
+
 bool DoesEmitterHaveSkidMat(NSceneParticleVis_ActiveEmitter@ emitter) {
-    auto subModel = emitter.EmitterSubModel;
+    CPlugParticleEmitterSubModel@ subModel = emitter.EmitterSubModel;
     if (subModel is null) return false;
-    auto nod = Dev::GetOffsetNod(subModel, GetOffset(subModel, "Render") + 0x10);
+    auto nod = Dev::GetOffsetNod(subModel, O_CPlugParticleEmitterSubModel_Render + 0x10);
     if (nod is null) return false;
     auto mat = cast<CPlugMaterial>(nod);
     if (mat is null) return false;
@@ -57,32 +66,3 @@ string[] skidMatNames = {
     "WheelMarksSand",
     "WheelMarksWet"
 };
-//     "WheelMarksWood",
-//     "WheelMarksMetal",
-//     "WheelMarksIce",
-//     "WheelMarksMud",
-//     "WheelMarksWater",
-//     "WheelMarksGravel",
-//     "WheelMarksLeaves",
-//     "WheelMarksPuddle",
-//     "WheelMarksOil",
-//     "WheelMarksPavement",
-//     "WheelMarksRock",
-//     "WheelMarksRubber",
-//     "WheelMarksTarmac",
-//     "WheelMarksTire",
-//     "WheelMarksTrack",
-//     "WheelMarksTrail",
-//     "WheelMarksTrain",
-//     "WheelMarksTram",
-//     "WheelMarksTunnel",
-//     "WheelMarksUnderground",
-//     "WheelMarksWall",
-//     "WheelMarksWater",
-//     "WheelMarksWet",
-//     "WheelMarksWood",
-//     "WheelMarksWooden",
-//     "WheelMarksYellow",
-//     "WheelMarksZebra",
-//     "WheelMarksZigzag"
-// };
