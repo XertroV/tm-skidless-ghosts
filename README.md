@@ -1,16 +1,11 @@
 # Skids Magician
 
-todo:
-- [x] respawn watcher
-- [x] restart watcher
-- [x] reset skids
-- [x] menu features
-- [x] guard functions with settings
-- [x] manager finder
-- [x] hotkeys
-- [x] settings
-- [x] only while driving
-
+A plugin that:
+- disables skids on ghosts
+- detects GPS/Watchign a record
+- resets skids on respawn and/or restart
+- has hotkeys
+- has some exports
 
 License: Public Domain
 
@@ -18,6 +13,6 @@ Authors: XertroV
 
 Suggestions/feedback: @XertroV on Openplanet discord
 
-Code/issues: [https://github.com/XertroV/tm-play-map](https://github.com/XertroV/tm-play-map)
+Code/issues: [https://github.com/XertroV/tm-skids-magician](https://github.com/XertroV/tm-skids-magician)
 
 GL HF

@@ -56,6 +56,9 @@ void RenderMenu() {
             Notify("VehicleState Update Hook " + (newApplied ? "Enabled" : "Disabled"));
         }
 
+        UI::Separator();
+        UI::TextDisabled("By XertroV");
+
         UI::EndMenu();
     }
 }

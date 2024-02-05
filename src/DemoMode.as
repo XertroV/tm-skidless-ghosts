@@ -14,7 +14,7 @@ bool m_EnableDemoMode = false;
 [SettingsTab name="Demo" order=50]
 void Render_SettingsTab_Demo() {
     m_EnableDemoMode = UI::Checkbox("Enable Demo Mode", m_EnableDemoMode);
-    UI::TextWrapped("This will make a funky sinusoidal effect on skids.\nOnly for asphalt, dirt and grass.\nIt will interfere with clearing skids.");
+    UI::TextWrapped("This will make a ~~funky~~ lackluster sinusoidal effect on skids.\nOnly for asphalt, dirt and grass.\nIt will interfere with clearing skids.");
 }
 
 // in skid points; note: 4 per frame b/c of 4 wheels
