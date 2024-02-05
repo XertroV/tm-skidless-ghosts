@@ -3,12 +3,13 @@
 todo:
 - [ ] respawn watcher
 - [ ] restart watcher
-- [ ] reset skids
+- [x] reset skids
 - [ ] menu features
 - [ ] guard functions with settings
 - [ ] manager finder
 - [ ] hotkeys
 - [ ] settings
+- [x] only while driving
 
 
 License: Public Domain

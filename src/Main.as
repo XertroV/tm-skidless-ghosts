@@ -143,3 +143,39 @@ void _Unload() {
     CheckUnhookAllRegisteredHooks();
     FreeAllAllocated();
 }
+
+void RenderEarly() {
+    // reset cached is driving each frame
+    g_IsPlayerDriving_HasSet = false;
+    g_IsPlayerDriving = false;
+}
+
+bool g_IsPlayerDriving_HasSet = false;
+bool g_IsPlayerDriving = false;
+
+bool IsPlayerDriving() {
+    if (g_IsPlayerDriving_HasSet) return g_IsPlayerDriving;
+    g_IsPlayerDriving_HasSet = true;
+    g_IsPlayerDriving = UI::CurrentActionMap() == "Vehicle"
+        && DoesViewingEntIdMatchPlayer();
+    return g_IsPlayerDriving;
+}
+
+bool DoesViewingEntIdMatchPlayer() {
+    auto app = GetApp();
+    if (app.GameScene is null) return false;
+    CSmPlayer@ player = VehicleState::GetViewingPlayer();
+    if (player is null) return false;
+    if (player.User.Login != app.LocalPlayerInfo.Login) return false;
+    auto vehicleId = VehicleState::GetPlayerVehicleID(player);
+    auto @state = VehicleState::ViewingPlayerState();
+    if (state is null) return false;
+    uint entId = Dev::GetOffsetUint32(state, 0);
+    if (vehicleId != entId) return false;
+    auto gameCamera = DGameCamera(Dev::GetOffsetUint64(app, GetOffset(app, "GameScene") + 0x10));
+    return entId == gameCamera.ViewingEntityId;
+}
+
+namespace VehicleState {
+    import uint GetPlayerVehicleID(CSmPlayer@ player) from "VehicleState";
+}

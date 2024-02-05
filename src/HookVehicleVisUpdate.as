@@ -9,6 +9,6 @@ void AfterVehicleVisUpdateSpeed(uint64 r11) {
     if (id == 0) return;
     SkidsMagician::RunCallbacks(id, r11);
     if (!S_EnableSkidlessGhosts) return;
-    if (S_SkidlessGhostsOnlyWhileDriving && !IsPlayerDriving()) return;
+    if (S_SkidlessGhostsOnlyWhileDriving && !g_IsPlayerDriving) return;
     OnVehicleUpdate(id, r11);
 }
