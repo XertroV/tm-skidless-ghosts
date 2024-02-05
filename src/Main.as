@@ -8,6 +8,7 @@ void Main(){
     CheckAndSetGameVersionSafe();
     while (!GameVersionSafe) sleep(500);
     HookVehicleVisUpdate.Apply();
+    startnew(WatchForRespawnsAndRestartsCoro);
 }
 
 UI::Font@ f_MonoSpace = null;
@@ -146,17 +147,24 @@ void _Unload() {
 
 void RenderEarly() {
     // reset cached is driving each frame
-    g_IsPlayerDriving_HasSet = false;
-    g_IsPlayerDriving = false;
+    g_InputMapIsVehicle = UI::CurrentActionMap() == "Vehicle";
+    if (!S_EnablePluginFeatures) {
+        g_EnableSkidlessGhostsThisFrame = false;
+        g_IsPlayerDriving = false;
+        return;
+    }
+    SetIsPlayerDriving();
+    g_EnableSkidlessGhostsThisFrame = S_EnablePluginFeatures
+        && S_EnableSkidlessGhosts
+        && (!S_SkidlessGhostsOnlyWhileDriving || g_IsPlayerDriving);
 }
 
-bool g_IsPlayerDriving_HasSet = false;
+bool g_EnableSkidlessGhostsThisFrame = false;
 bool g_IsPlayerDriving = false;
+bool g_InputMapIsVehicle = false;
 
-bool IsPlayerDriving() {
-    if (g_IsPlayerDriving_HasSet) return g_IsPlayerDriving;
-    g_IsPlayerDriving_HasSet = true;
-    g_IsPlayerDriving = UI::CurrentActionMap() == "Vehicle"
+bool SetIsPlayerDriving() {
+    g_IsPlayerDriving = g_InputMapIsVehicle
         && DoesViewingEntIdMatchPlayer();
     return g_IsPlayerDriving;
 }
@@ -168,14 +176,72 @@ bool DoesViewingEntIdMatchPlayer() {
     if (player is null) return false;
     if (player.User.Login != app.LocalPlayerInfo.Login) return false;
     auto vehicleId = VehicleState::GetPlayerVehicleID(player);
+    auto gameCamera = GetGameCamera(app);
+    if (vehicleId != gameCamera.ViewingEntityId) return false;
+    // the below takes about 0.3 ms
     auto @state = VehicleState::ViewingPlayerState();
     if (state is null) return false;
     uint entId = Dev::GetOffsetUint32(state, 0);
     if (vehicleId != entId) return false;
-    auto gameCamera = DGameCamera(Dev::GetOffsetUint64(app, GetOffset(app, "GameScene") + 0x10));
-    return entId == gameCamera.ViewingEntityId;
+    return true;
+}
+
+DGameCamera@ GetGameCamera(CGameCtnApp@ app) {
+    auto ptr = Dev::GetOffsetUint64(app, GetOffset(app, "GameScene") + 0x10);
+    if (ptr <= 0xFFFFFFFFF) return null;
+    return DGameCamera(ptr);
 }
 
 namespace VehicleState {
     import uint GetPlayerVehicleID(CSmPlayer@ player) from "VehicleState";
+}
+
+
+int playerStartRaceTime = -1;
+int playerNbRespawnRequests = -1;
+
+void WatchForRespawnsAndRestartsCoro() {
+    auto app = GetApp();
+    while (true) {
+        while (!S_EnablePluginFeatures || !Playing(app)) yield();
+        playerNbRespawnRequests = -1;
+        playerStartRaceTime = -1;
+        while (S_EnablePluginFeatures && Playing(app)) {
+            UpdateWhilePlaying();
+            yield();
+        }
+        yield();
+    }
+}
+
+bool Playing(CGameCtnApp@ app) {
+    if (!g_InputMapIsVehicle) return false;
+    if (app.RootMap is null || app.CurrentPlayground is null || app.GameScene is null) return false;
+    return true;
+}
+
+void UpdateWhilePlaying() {
+    CSmPlayer@ player = VehicleState::GetViewingPlayer();
+    if (player is null || player.Score is null) return;
+    if (playerStartRaceTime == -1) {
+        playerStartRaceTime = player.StartTime;
+        playerNbRespawnRequests = player.Score.NbRespawnsRequested;
+        return;
+    }
+    if (playerStartRaceTime != player.StartTime) {
+        playerStartRaceTime = player.StartTime;
+        playerNbRespawnRequests = player.Score.NbRespawnsRequested;
+        if (S_ClearSkidsOnRestart) {
+            trace('Clear skids on restart');
+            ClearSkids();
+        }
+        return;
+    }
+    if (playerNbRespawnRequests != player.Score.NbRespawnsRequested) {
+        playerNbRespawnRequests = player.Score.NbRespawnsRequested;
+        if (S_ClearSkidsOnRespawn) {
+            trace('Clear skids on respawn');
+            ClearSkids();
+        }
+    }
 }

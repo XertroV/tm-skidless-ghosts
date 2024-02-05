@@ -18,15 +18,20 @@ bool S_EnableClearSkidsHotkey = false;
 
 
 UI::InputBlocking OnKeyPress(bool down, VirtualKey key) {
-    if (down && rebindInProgress) {
-        ReportRebindKey(key);
-        return UI::InputBlocking::Block;
-    }
-    if (S_EnableToggleSkidlessGhostsHotkey && down && key == S_ToggleSkidlessGhostsHotkey) {
-        return OnPressToggleSkidlessGhostsHotkey();
-    }
-    if (S_EnableClearSkidsHotkey && down && key == S_ClearSkidsHotkey) {
-        return OnPressClearSkidsHotkey();
+    if (down) {
+        if (rebindInProgress) {
+            ReportRebindKey(key);
+            return UI::InputBlocking::Block;
+        }
+        if (!S_EnablePluginFeatures) {
+            return UI::InputBlocking::DoNothing;
+        }
+        if (S_EnableToggleSkidlessGhostsHotkey && key == S_ToggleSkidlessGhostsHotkey) {
+            return OnPressToggleSkidlessGhostsHotkey();
+        }
+        if (S_EnableClearSkidsHotkey && key == S_ClearSkidsHotkey) {
+            return OnPressClearSkidsHotkey();
+        }
     }
     return UI::InputBlocking::DoNothing;
 }

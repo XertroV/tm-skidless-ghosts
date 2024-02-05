@@ -1,14 +1,14 @@
 # Skids Magician
 
 todo:
-- [ ] respawn watcher
-- [ ] restart watcher
+- [x] respawn watcher
+- [x] restart watcher
 - [x] reset skids
-- [ ] menu features
-- [ ] guard functions with settings
-- [ ] manager finder
-- [ ] hotkeys
-- [ ] settings
+- [x] menu features
+- [x] guard functions with settings
+- [x] manager finder
+- [x] hotkeys
+- [x] settings
 - [x] only while driving
 
 
