@@ -1,8 +1,16 @@
+const uint NSceneParticleVis_SMgr_ClassId = Reflection::GetType("NSceneParticleVis_SMgr").ID;
+
+D_NSceneParticleVis_SMgr@ GetParticleVisMgr() {
+    auto mgr = FindManager(NSceneParticleVis_SMgr_ClassId);
+    if (mgr is null) return null;
+    if (mgr.ptr == 0) return null;
+    return D_NSceneParticleVis_SMgr(mgr.ptr);
+}
+
 void ClearSkids() {
     // NSceneParticleVis_SMgr
-    auto mgr = FindManager(0x300b4000);
-    if (mgr is null) return;
-    auto particleVisMgr = D_NSceneParticleVis_SMgr(mgr.ptr);
+    auto particleVisMgr = GetParticleVisMgr();
+    if (particleVisMgr is null) return;
     auto emitters = particleVisMgr.ActiveEmitters;
     auto nbEmitters = emitters.Length;
     for (uint i = 0; i < nbEmitters; i++) {

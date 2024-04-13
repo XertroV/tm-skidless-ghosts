@@ -1,6 +1,9 @@
 bool GameVersionSafe = false;
 const string[] KnownSafeVersions = {
     "2024-01-10_12_53",
+    "2024-03-19_14_47",
+    "2024-04-12_13_04",
+    "2024-04-05_20_53",
     };
 const string configUrl = "https://openplanet.dev/plugin/skids-magician/config/version-compat";
 
